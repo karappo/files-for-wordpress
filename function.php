@@ -7,7 +7,7 @@
 function restrict_japanese_filenames($file) {
     $filename = $file['name'];
     // 日本語の文字が含まれているか確認
-    if (preg_match('/[ぁ-んァ-ヶ一-龥]/u', $filename)) {
+    if (preg_match('/[ぁ-んァ-ヶ一-龠]/u', $filename)) {
         $file['error'] = '日本語ファイル名のファイルはアップロードできません。英数字のみにしてください。';
     }
     return $file;
