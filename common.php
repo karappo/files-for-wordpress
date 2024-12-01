@@ -51,4 +51,3 @@ function hide_postnew_page_sticky() {
 }
 add_action( 'admin_print_styles-post-new.php', 'hide_postnew_page_sticky' );
 
-?>
