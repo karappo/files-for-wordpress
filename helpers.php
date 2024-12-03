@@ -8,6 +8,13 @@ function asset_path($path) {
   return get_template_directory_uri() . "/assets/$path";
 }
 
+/**
+ * 単純なimgタグ
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string
+ */
 function image_tag($src, $attrs = '', $return = false) {
   $src = asset_path("image/$src");
 
@@ -23,6 +30,13 @@ function image_tag($src, $attrs = '', $return = false) {
   echo $res;
 }
 
+/**
+ * PC/SP用の２つのimgタグ（それぞれpc,spクラスを付与）
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string or null
+ */
 function image_tag_sp($src, $attrs = '', $return = false) {
 
   // attrの中からclassを抜き出す
@@ -51,6 +65,13 @@ function image_tag_sp($src, $attrs = '', $return = false) {
   echo $res;
 }
 
+/**
+ * $srcで指定したパスに自動で@2xをつけてsrcsetを設定する
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string or null
+ */
 function img_tag($src, $attrs = '', $return = false) {
   $src_2x = preg_replace('/(\.\w+)$/', '@2x$1', $src);
 
@@ -70,6 +91,14 @@ function img_tag($src, $attrs = '', $return = false) {
   echo $res;
 }
 
+/**
+ * $srcで指定したパスに自動で@2xをつけてsrcsetを設定する
+ * PC/SP用の２つのimgタグ（それぞれpc,spクラスを付与）
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string or null
+ */
 function img_tag_sp($src, $attrs = '', $return = false) {
   $src_2x = preg_replace('/(\.\w+)$/', '@2x$1', $src);
 
