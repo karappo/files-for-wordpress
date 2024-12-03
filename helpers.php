@@ -128,3 +128,53 @@ function img_tag_sp($src, $attrs = '', $return = false) {
   }
   echo $res;
 }
+
+/**
+ * SVGファイルをinline出力
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string
+ */
+function inline_svg($src, $attrs = '', $return = false) {
+  $src = asset_path("image/$src");
+  $res = file_get_contents($src);
+  if ($attrs != '') {
+    // attrをもともとのattributesとマージして置換
+    preg_match('/<svg ([^\>]*)>/', $res, $_matches);
+    $attr_array = array_merge_recursive(parseAttributes($_matches[1]), parseAttributes($attrs));
+    $attrs = '';
+    foreach ($attr_array as $key => $value) {
+      if (is_array($value)) {
+        $value = implode(' ', $value);
+      }
+      $attrs .= " $key=\"$value\"";
+    }
+    $res = str_replace($_matches[1], $attrs, $res);
+  }
+  if($return){
+    return $res;
+  }
+  echo $res;
+}
+
+/**
+ * $srcで指定したパスに自動で@2xをつけて２つのSVGファイルをinline出力（それぞれpc,spクラスを付与）
+ * @param string $src Path to image
+ * @param string $attrs Attributes e.g. 'alt="description of image" data-value="hoge"'
+ * @param bool $return Set true if you just want result without echo
+ * @return string
+ */
+function inline_svg_sp($src, $attrs = '', $return = false) {
+  // attrの中からclassを抜き出す
+  $class_val = '';
+  if(preg_match('/class="(.*)"/', $attrs, $match)){
+    $class_val = " $match[1]";
+    $attrs = preg_replace('/(class="\w+")/', '', $attrs);
+  }
+
+  $src_sp = preg_replace('/\.(\w+)$/', '-sp.$1', $src);
+
+  inline_svg($src, "class=\"pc$class_val\" $attrs", $return);
+  inline_svg($src_sp, "class=\"sp$class_val\" $attrs", $return);
+}
