@@ -138,7 +138,21 @@ function img_tag_sp($src, $attrs = '', $return = false) {
  */
 function inline_svg($src, $attrs = '', $return = false) {
   $src = asset_path("image/$src");
-  $res = file_get_contents($src);
+
+  // ホスト名が.testで終わる場合にSSL検証を無効にする
+  $options = [];
+  if (preg_match('/\.test$/', $_SERVER['HTTP_HOST'])) {
+    $options = [
+      "ssl" => [
+        "verify_peer" => false,
+        "verify_peer_name" => false,
+      ],
+    ];
+  }
+
+  $context = stream_context_create($options);
+  $res = file_get_contents($src, false, $context);
+
   if ($attrs != '') {
     // attrをもともとのattributesとマージして置換
     preg_match('/<svg ([^\>]*)>/', $res, $_matches);
@@ -177,4 +191,22 @@ function inline_svg_sp($src, $attrs = '', $return = false) {
 
   inline_svg($src, "class=\"pc$class_val\" $attrs", $return);
   inline_svg($src_sp, "class=\"sp$class_val\" $attrs", $return);
+}
+
+/**
+ * HTMLのattributesを配列化
+ * @param string $str : 'attr1="hoge" attr2="moge"'
+ * @return array : array("attr1"=> "hoge", "attr2"=>"moge")
+ */
+function parseAttributes($str){
+  preg_match_all('/(\w+)=[\'"]([^\'"]*)/', $str, $matches, PREG_SET_ORDER);
+  $res = [];
+  foreach($matches as $match){
+      $attrName = $match[1];
+      //parse the string value into an integer if it's numeric,
+      // leave it as a string if it's not numeric,
+      $attrValue = is_numeric($match[2])? (int)$match[2]: trim($match[2]);
+      $res[$attrName] = $attrValue; //add match to results
+  }
+  return $res;
 }

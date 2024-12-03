@@ -1,5 +1,28 @@
 <?php
 
+/*
+使い方
+```function.php
+require_once('karappo-common/common.php');
+require_once('karappo-common/helpers.php');
+```
+*/
+
+// ==========================================================
+//
+// グローバル変数を定義
+// helpers.phpなどで使用する
+
+$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST']);
+
+/*
+判定方法を変えたい場合は、各プロジェクトのfunctions.phpで調整
+```function.php
+require_once('karappo-common/common.php');
+$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST']);
+```
+*/
+
 // ==========================================================
 //
 // 日本語ファイル名のアップロードを禁止
