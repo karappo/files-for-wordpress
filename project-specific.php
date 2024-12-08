@@ -162,3 +162,48 @@ function displayCategoryNotice() {
 }
 add_action('admin_notices', 'displayCategoryNotice');
 
+// ==========================================================
+// 
+// wp_headでhead>titleを出力しない（head.blade.phpで一元管理する）
+
+remove_action( 'wp_head', '_wp_render_title_tag', 1 );
+
+// ==========================================================
+// 
+// メディア画像サイズ関係
+
+// 画像名に"-scaled"が付与されるもの
+// - サイズ変更
+function change_big_image_size_threshold( $threshold ) {
+  return 2048;
+}
+add_filter('big_image_size_threshold', 'change_big_image_size_threshold', 999, 1);
+// - 無効化
+// add_filter( 'big_image_size_threshold', '__return_false' );
+
+// サムネイルサイズを追加
+// MAGAZINE詳細ページの顔写真
+// add_image_size('picture', 163, 163, true);
+// add_image_size('picture-2x', 326, 326, true);
+
+// 大きすぎる画像は容量削減のために自動削除
+// big_image_size_thresholdでscaleされていない画像は、リサイズ後に削除
+function txt_domain_delete_fullsize_image($metadata) {
+  // for debug
+  // ob_start();
+  // var_dump( $metadata );
+  // $test = ob_get_contents();
+  // ob_end_clean();
+  // error_log( $test );
+  $upload_dir = wp_upload_dir();
+  $full_image_path = trailingslashit($upload_dir['basedir']) . $metadata['file'];
+  $original_image_path = preg_replace('/\-scaled\./', '.', $full_image_path);
+  if ($full_image_path !== $original_image_path) {
+    // 縮小されていたらもとの画像はより大きいサイズなので削除
+    unlink($original_image_path);
+    unset( $metadata['original_image'] );
+  }
+  return $metadata;
+}
+add_filter('wp_generate_attachment_metadata', 'txt_domain_delete_fullsize_image');
+
