@@ -170,24 +170,40 @@ remove_action( 'wp_head', '_wp_render_title_tag', 1 );
 
 // ==========================================================
 // 
-// メディア画像サイズ関係
-
-// 画像名に"-scaled"が付与されるもの
-// - サイズ変更
+// デフォルトでは2560px以上の画像は画像名に"-scaled"が付与されて縮小保存される機能に関して…
+// 1. 閾値を変更したい場合
 function change_big_image_size_threshold( $threshold ) {
   return 2048;
 }
 add_filter('big_image_size_threshold', 'change_big_image_size_threshold', 999, 1);
-// - 無効化
-// add_filter( 'big_image_size_threshold', '__return_false' );
+// 2. 機能自体を無効化したい場合
+add_filter( 'big_image_size_threshold', '__return_false' );
 
+// ==========================================================
+// 
+// サムネイルサイズを削除
+
+add_filter('intermediate_image_sizes_advanced', function( $new_sizes ) {
+    unset( $new_sizes['thumbnail'] ); // サムネイル
+    unset( $new_sizes['medium'] ); // 中サイズ
+    unset( $new_sizes['large'] ); // 大サイズ
+    unset( $new_sizes['medium_large'] ); //　もっと大きいサイズ
+    unset( $new_sizes['1536x1536'] ); // かなり大きいサイズ
+    unset( $new_sizes['2048x2048'] ); // とんでもなく大きいサイズ
+  });
+
+// ==========================================================
+// 
 // サムネイルサイズを追加
-// MAGAZINE詳細ページの顔写真
-// add_image_size('picture', 163, 163, true);
-// add_image_size('picture-2x', 326, 326, true);
 
+add_image_size('picture', 163, 163, true);
+add_image_size('picture-2x', 326, 326, true);
+
+// ==========================================================
+// 
 // 大きすぎる画像は容量削減のために自動削除
-// big_image_size_thresholdでscaleされていない画像は、リサイズ後に削除
+// （big_image_size_thresholdでscaleされていない画像は、リサイズ後に削除）
+
 function txt_domain_delete_fullsize_image($metadata) {
   // for debug
   // ob_start();
