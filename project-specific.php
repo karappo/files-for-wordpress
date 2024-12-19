@@ -183,14 +183,21 @@ add_filter( 'big_image_size_threshold', '__return_false' );
 // 
 // サムネイルサイズを削除
 
-add_filter('intermediate_image_sizes_advanced', function( $new_sizes ) {
-    // unset( $new_sizes['thumbnail'] ); // 150x150 ピクセル（切り取ってサイズにフィット）
-    // unset( $new_sizes['medium'] ); // 300x300 ピクセル（比率を維持したまま指定サイズにおさめる）
-    unset( $new_sizes['medium_large'] ); //　768x0 ピクセル（比率を維持したまま指定サイズにおさめる）
-    unset( $new_sizes['large'] ); // 1024x1024 ピクセル（比率を維持したまま指定サイズにおさめる）
-    unset( $new_sizes['1536x1536'] ); // 1536x1536 ピクセル（比率を維持したまま指定サイズにおさめる）
-    unset( $new_sizes['2048x2048'] ); // 2048x2048 ピクセル（比率を維持したまま指定サイズにおさめる）
-  });
+function remove_thumbnail_sizes( $new_sizes ) {
+
+  // この二つは管理画面でも使うのでそのまま残すのが無難
+  // unset( $new_sizes['thumbnail'] ); // 150x150 ピクセル（切り取ってサイズにフィット）
+  // unset( $new_sizes['medium'] ); // 300x300 ピクセル（比率を維持したまま指定サイズにおさめる）
+
+  // これ以降は要判断
+  unset( $new_sizes['medium_large'] ); //　768x0 ピクセル（比率を維持したまま指定サイズにおさめる）
+  unset( $new_sizes['large'] ); // 1024x1024 ピクセル（比率を維持したまま指定サイズにおさめる）
+  unset( $new_sizes['1536x1536'] ); // 1536x1536 ピクセル（比率を維持したまま指定サイズにおさめる）
+  unset( $new_sizes['2048x2048'] ); // 2048x2048 ピクセル（比率を維持したまま指定サイズにおさめる）
+
+  return $new_sizes;
+}
+add_filter('intermediate_image_sizes_advanced', 'remove_thumbnail_sizes');
 
 // ==========================================================
 // 
