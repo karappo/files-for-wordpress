@@ -188,8 +188,8 @@ add_filter('intermediate_image_sizes_advanced', function( $new_sizes ) {
     unset( $new_sizes['medium'] ); // 中サイズ
     unset( $new_sizes['large'] ); // 大サイズ
     unset( $new_sizes['medium_large'] ); //　もっと大きいサイズ
-    unset( $new_sizes['1536x1536'] ); // かなり大きいサイズ
-    unset( $new_sizes['2048x2048'] ); // とんでもなく大きいサイズ
+    unset( $new_sizes['1536x1536'] ); // もっともっと大きいサイズ
+    unset( $new_sizes['2048x2048'] ); // もっともっともっと大きいサイズ
   });
 
 // ==========================================================
