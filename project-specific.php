@@ -184,12 +184,12 @@ add_filter( 'big_image_size_threshold', '__return_false' );
 // サムネイルサイズを削除
 
 add_filter('intermediate_image_sizes_advanced', function( $new_sizes ) {
-    unset( $new_sizes['thumbnail'] ); // サムネイル
-    unset( $new_sizes['medium'] ); // 中サイズ
-    unset( $new_sizes['large'] ); // 大サイズ
-    unset( $new_sizes['medium_large'] ); //　もっと大きいサイズ
-    unset( $new_sizes['1536x1536'] ); // もっともっと大きいサイズ
-    unset( $new_sizes['2048x2048'] ); // もっともっともっと大きいサイズ
+    unset( $new_sizes['thumbnail'] ); // 150x150 ピクセル（切り取ってサイズにフィット）
+    unset( $new_sizes['medium'] ); // 300x300 ピクセル（比率を維持したまま指定サイズにおさめる）
+    unset( $new_sizes['medium_large'] ); //　768x0 ピクセル（比率を維持したまま指定サイズにおさめる）
+    unset( $new_sizes['large'] ); // 1024x1024 ピクセル（比率を維持したまま指定サイズにおさめる）
+    unset( $new_sizes['1536x1536'] ); // 1536x1536 ピクセル（比率を維持したまま指定サイズにおさめる）
+    unset( $new_sizes['2048x2048'] ); // 2048x2048 ピクセル（比率を維持したまま指定サイズにおさめる）
   });
 
 // ==========================================================
