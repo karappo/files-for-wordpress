@@ -52,7 +52,7 @@ add_filter( 'allowed_block_types_all', 'my_plugin_allowed_block_types_all', 10, 
 // embedの中身をjs側で削除
 // 詳細は、remove-block.jsを参照
 add_action( 'enqueue_block_editor_assets', function() {
-  wp_enqueue_script( 'remove-block', get_template_directory_uri().'/remove-block.js', array(), false, true );
+  wp_enqueue_script( 'remove-block', get_template_directory_uri().'/karappo-common/remove-block.js', array(), false, true );
 } );
 
 // ==========================================================
