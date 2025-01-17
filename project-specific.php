@@ -33,6 +33,30 @@ add_action( 'admin_menu', 'custom_admin_menu' );
 
 // ==========================================================
 //
+// Gutenbergエディタから使用するブロックだけを表示
+// ブロックタイプはこちらを参照
+// https://wpqw.jp/wordpress/block-editor/remove-blocks58/
+
+function my_plugin_allowed_block_types_all( $allowed_block_types, $block_editor_context ) {
+  // 許可するブロックタイプ
+  $allowed_block_types = array(
+    'core/paragraph',
+    'core/image',
+    'core/gallery',
+    'core/embed'
+  );
+  return $allowed_block_types;
+}
+add_filter( 'allowed_block_types_all', 'my_plugin_allowed_block_types_all', 10, 2 );
+
+// embedの中身をjs側で削除
+// 詳細は、remove-block.jsを参照
+add_action( 'enqueue_block_editor_assets', function() {
+  wp_enqueue_script( 'remove-block', get_template_directory_uri().'/remove-block.js', array(), false, true );
+} );
+
+// ==========================================================
+//
 // 「投稿」をリネーム
 
 function change_admin_menu() {
