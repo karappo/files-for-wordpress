@@ -89,6 +89,12 @@ add_action( 'init', 'change_post_object_label' );
 
 // ==========================================================
 //
+// アイキャッチ画像を有効にする。
+
+add_theme_support('post-thumbnails');
+
+// ==========================================================
+//
 // カスタムポストタイプで「revisions」を有効化
 
 function my_custom_revision() {
