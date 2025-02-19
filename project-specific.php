@@ -187,13 +187,13 @@ function displayCategoryNotice() {
 add_action('admin_notices', 'displayCategoryNotice');
 
 // ==========================================================
-// 
+//
 // wp_headでhead>titleを出力しない（head.blade.phpで一元管理する）
 
 remove_action( 'wp_head', '_wp_render_title_tag', 1 );
 
 // ==========================================================
-// 
+//
 // デフォルトでは2560px以上の画像は画像名に"-scaled"が付与されて縮小保存される機能に関して…
 // 1. 閾値を変更したい場合
 function change_big_image_size_threshold( $threshold ) {
@@ -204,7 +204,7 @@ add_filter('big_image_size_threshold', 'change_big_image_size_threshold', 999, 1
 add_filter( 'big_image_size_threshold', '__return_false' );
 
 // ==========================================================
-// 
+//
 // サムネイルサイズを削除
 
 function remove_thumbnail_sizes( $new_sizes ) {
@@ -224,14 +224,14 @@ function remove_thumbnail_sizes( $new_sizes ) {
 add_filter('intermediate_image_sizes_advanced', 'remove_thumbnail_sizes');
 
 // ==========================================================
-// 
+//
 // サムネイルサイズを追加
 
 add_image_size('picture', 163, 163, true);
 add_image_size('picture-2x', 326, 326, true);
 
 // ==========================================================
-// 
+//
 // 大きすぎる画像は容量削減のために自動削除
 // （big_image_size_thresholdでscaleされていない画像は、リサイズ後に削除）
 
