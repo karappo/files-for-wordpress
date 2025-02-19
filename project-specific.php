@@ -57,6 +57,21 @@ add_action( 'enqueue_block_editor_assets', function() {
 
 // ==========================================================
 //
+// デバッグ用： 管理画面に現在登録されているブロックタイプを出力
+
+// add_action('admin_init', function() {
+//     $block_registry = WP_Block_Type_Registry::get_instance();
+//     $all_blocks = $block_registry->get_all_registered();
+
+//     echo '<pre>';
+//     foreach ($all_blocks as $block_name => $block_type) {
+//         echo esc_html($block_name) . "\n";
+//     }
+//     echo '</pre>';
+// });
+
+// ==========================================================
+//
 // 「投稿」をリネーム
 
 function change_admin_menu() {
