@@ -4,8 +4,15 @@
 //
 // Helpers
 
-function asset_path($path) {
-  return get_template_directory_uri() . "/assets/$path";
+function assets_image_path($path) {
+ // $srcが絶対パス（http://や/からはじまる場合）ならそのまま使うが、それ以外はassets/image/から読み込む
+  if (
+    preg_match('/^https?:\/\//', $path) ||
+    preg_match('/^\//', $path)
+  ) {
+    return $path;
+  }
+  return get_template_directory_uri() . "/assets/image/$path";
 }
 
 /**
@@ -16,7 +23,7 @@ function asset_path($path) {
  * @return string
  */
 function image_tag($src, $attrs = '', $return = false) {
-  $src = asset_path("image/$src");
+  $src = assets_image_path($src);
 
   // altが未設定の場合は attrs="" を追加
   if(!preg_match('/alt=".*"/', $attrs)) {
@@ -53,8 +60,8 @@ function image_tag_sp($src, $attrs = '', $return = false) {
 
   $src_sp = preg_replace('/\.(\w+)$/', '-sp.$1', $src);
 
-  $asset_src = asset_path("image/$src");
-  $asset_src_sp = asset_path("image/$src_sp");
+  $asset_src = assets_image_path($src);
+  $asset_src_sp = assets_image_path($src_sp);
 
   $res =
     "<img class=\"pc$class_val\" $attrs src=\"$asset_src\">
@@ -76,8 +83,8 @@ function img_tag($src, $attrs = '', $return = false) {
   $src_2x = preg_replace('/(\.\w+)$/', '@2x$1', $src);
 
   // 画像毎にhash値が違うので注意
-  $asset_src = asset_path("image/$src");
-  $asset_src_2x = asset_path("image/$src_2x");
+  $asset_src = assets_image_path($src);
+  $asset_src_2x = assets_image_path($src_2x);
 
   // altが未設定の場合は attrs="" を追加
   if(!preg_match('/alt=".*"/', $attrs)) {
@@ -117,10 +124,10 @@ function img_tag_sp($src, $attrs = '', $return = false) {
   $src_sp = preg_replace('/\.(\w+)$/', '-sp.$1', $src);
   $src_sp_2x = preg_replace('/(\.\w+)$/', '@2x$1', $src_sp);
 
-  $asset_src = asset_path("image/$src");
-  $asset_src_2x = asset_path("image/$src_2x");
-  $asset_src_sp = asset_path("image/$src_sp");
-  $asset_src_sp_2x = asset_path("image/$src_sp_2x");
+  $asset_src = assets_image_path($src);
+  $asset_src_2x = assets_image_path($src_2x);
+  $asset_src_sp = assets_image_path($src_sp);
+  $asset_src_sp_2x = assets_image_path($src_sp_2x);
 
   $res = "<img class=\"pc$class_val\" $attrs src=\"$asset_src\" srcset=\"$asset_src_2x 2x\"><img class=\"sp$class_val\" $attrs src=\"$asset_src_sp\" srcset=\"$asset_src_sp_2x 2x\">";
   if($return){
@@ -137,7 +144,7 @@ function img_tag_sp($src, $attrs = '', $return = false) {
  * @return string
  */
 function inline_svg($src, $attrs = '', $return = false) {
-  $src = asset_path("image/$src");
+  $src = assets_image_path($src);
 
   // ホスト名が.testで終わる場合にSSL検証を無効にする
   $options = [];
