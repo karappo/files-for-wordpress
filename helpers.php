@@ -146,8 +146,14 @@ function img_tag_sp($src, $attrs = '', $return = false) {
 function inline_svg($src, $attrs = '', $return = false) {
   $src = assets_image_path($src);
 
+  // デバッグ情報を出力
+  error_log('SVG Source URL: ' . $src);
+
   // まずローカルファイルパスとして試行
   $local_path = str_replace(get_template_directory_uri(), get_template_directory(), $src);
+  error_log('Local Path: ' . $local_path);
+  error_log('File exists: ' . (file_exists($local_path) ? 'Yes' : 'No'));
+
   if (file_exists($local_path)) {
     $res = file_get_contents($local_path);
   } else {
