@@ -163,10 +163,8 @@ function inline_svg($src, $attrs = '', $return = false) {
   // echo 'File exists: ' . (file_exists($local_path) ? 'Yes' : 'No');
 
   if (file_exists($local_path)) {
-    echo 'local';
     $res = file_get_contents($local_path);
   } else {
-    echo 'remote';
     // ホスト名が.testで終わる場合にSSL検証を無効にする
     $options = [];
     if (preg_match('/\.test$/', $_SERVER['HTTP_HOST'])) {
