@@ -146,19 +146,25 @@ function img_tag_sp($src, $attrs = '', $return = false) {
 function inline_svg($src, $attrs = '', $return = false) {
   $src = assets_image_path($src);
 
-  // ホスト名が.testで終わる場合にSSL検証を無効にする
-  $options = [];
-  if (preg_match('/\.test$/', $_SERVER['HTTP_HOST'])) {
-    $options = [
-      "ssl" => [
-        "verify_peer" => false,
-        "verify_peer_name" => false,
-      ],
-    ];
-  }
+  // まずローカルファイルパスとして試行
+  $local_path = str_replace(get_template_directory_uri(), get_template_directory(), $src);
+  if (file_exists($local_path)) {
+    $res = file_get_contents($local_path);
+  } else {
+    // ホスト名が.testで終わる場合にSSL検証を無効にする
+    $options = [];
+    if (preg_match('/\.test$/', $_SERVER['HTTP_HOST'])) {
+      $options = [
+        "ssl" => [
+          "verify_peer" => false,
+          "verify_peer_name" => false,
+        ],
+      ];
+    }
 
-  $context = stream_context_create($options);
-  $res = file_get_contents($src, false, $context);
+    $context = stream_context_create($options);
+    $res = file_get_contents($src, false, $context);
+  }
 
   if ($attrs != '') {
     // attrをもともとのattributesとマージして置換
