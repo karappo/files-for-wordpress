@@ -13,13 +13,6 @@ function assets_image_path($path) {
     return $path;
   }
 
-  // まずローカルパスを試す
-  $local_path = get_template_directory() . "/assets/image/$path";
-  if (file_exists($local_path)) {
-    return $local_path;
-  }
-
-  // ローカルファイルが存在しない場合はURLを返す
   return get_template_directory_uri() . "/assets/image/$path";
 }
 
