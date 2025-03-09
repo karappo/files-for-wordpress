@@ -27,9 +27,37 @@ function custom_admin_menu() {
     remove_menu_page('edit.php?post_type=acf-field-group'); // ACF
     remove_menu_page('wpcf7'); // Contact Form 7
   }
+
+  // サイドバーに特定の固定ページ（例としてid:8）の編集画面へのリンクを追加
+  add_menu_page(
+    '特定の固定ページ編集',
+    '○○ページ',
+    'edit_pages', // 固定ページの編集権限を持つユーザーにのみ表示
+    'post.php?post=8&action=edit', // 編集画面へのリンク
+    '',
+    'dashicons-edit',
+    20
+  );
+
   echo '';
 }
 add_action( 'admin_menu', 'custom_admin_menu' );
+
+// ==========================================================
+//
+// 固定ページの一覧ページにきたとしたら、特定の固定ページ（例としてid:8）へリダイレクト
+
+function redirect_pages_list_for_specific_users() {
+  if (!is_karappo_admin() && is_admin()) {
+    global $pagenow;
+    if ($pagenow == 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] == 'page') {
+      wp_redirect(admin_url('post.php?post=8&action=edit'));
+      exit;
+    }
+  }
+}
+add_action('admin_init', 'redirect_pages_list_for_specific_users');
+
 
 // ==========================================================
 //
