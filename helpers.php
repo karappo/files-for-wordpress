@@ -231,3 +231,27 @@ function parseAttributes($str){
   }
   return $res;
 }
+
+/**
+ * $linkに応じてhrefやtargetなどのattrを設定して返す
+ * @param string | array $link arrayはACFproのリンクオブジェクトの連想配列
+ * @return string
+ */
+
+function get_attr_for_link($link) {
+  $attr = '';
+  // $linkが文字列だったら
+  if (is_string($link) && $link) {
+    $link_url = $link;
+    $attr = 'href="'.esc_url( $link_url ).'"';
+  }
+  // $linkが連想配列だったら
+  else if (is_array($link)) {
+    $link_url = $link['url'];
+    if ($link_url) {
+      $link_target = $link['target'] ? $link['target'] : '_self';
+      $attr = 'href="'.esc_url( $link_url ).'" target="'.esc_attr( $link_target ).'"';
+    }
+  }
+  return $attr;
+}
