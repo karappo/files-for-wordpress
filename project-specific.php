@@ -268,6 +268,74 @@ add_action('admin_notices', 'displayCategoryNotice');
 
 // ==========================================================
 //
+// CPT:xxxのページタイトル下かつパーマリンクの上に注釈を追加
+
+function add_works_title_note_script() {
+    $screen = get_current_screen();
+    if ($screen && $screen->post_type === 'xxx') {
+        ?>
+        <script>
+        jQuery(document).ready(function ($) {
+            const $slugBox = $('#edit-slug-box');
+            if ($slugBox.length) {
+                $('<div>', {
+                    text: 'タイトルはなるべく英数字にしてください。',
+                    css: {
+                        fontSize: '13px',
+                        color: '#666',
+                        marginTop: '6px',
+                        marginBottom: '6px'
+                    }
+                }).insertBefore($slugBox);
+            }
+        });
+        </script>
+        <?php
+    }
+}
+add_action('admin_footer-post.php', 'add_works_title_note_script');
+add_action('admin_footer-post-new.php', 'add_works_title_note_script');
+
+// ==========================================================
+//
+// CPT:xxx のパーマリンクに注釈を追加
+// （新規作成時には、#edit-slug-boxの中身が空なので、その時は表示せず、パーマリンクが表示された時（表示されている時）にのみ注意書きを表示する）
+
+function add_permalink_note_on_slug_box_update() {
+  $screen = get_current_screen();
+  if ($screen && $screen->post_type === 'xxx') {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const slugBox = document.getElementById('edit-slug-box');
+      if (!slugBox) return;
+      function insertNoteIfNeeded() {
+        const text = slugBox.innerText || slugBox.textContent;
+        if (text.includes('パーマリンク') && !document.getElementById('custom-slug-note')) {
+          const note = document.createElement('div');
+          note.innerHTML =
+              '↑デフォルトでタイトルそのままになってしまいますが、日本語が含まれている状態では詳細ページが正しく表示されません。<br>' +
+              '必ず「編集」を押して、<strong>半角の英数字、ハイフン</strong>に変更をお願いします。';
+          note.id = 'custom-slug-note';
+          note.style.fontSize = '13px';
+          note.style.color = '#666';
+          note.style.marginBottom = '8px';
+          slugBox.parentNode.insertBefore(note, slugBox.nextSibling);
+        }
+      }
+      insertNoteIfNeeded();
+      const observer = new MutationObserver(insertNoteIfNeeded);
+      observer.observe(slugBox, { childList: true, subtree: true });
+    });
+    </script>
+    <?php
+  }
+}
+add_action('admin_footer-post.php', 'add_permalink_note_on_slug_box_update');
+add_action('admin_footer-post-new.php', 'add_permalink_note_on_slug_box_update');
+
+// ==========================================================
+//
 // wp_headでhead>titleを出力しない（head.blade.phpで一元管理する）
 
 remove_action( 'wp_head', '_wp_render_title_tag', 1 );
