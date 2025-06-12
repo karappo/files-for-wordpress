@@ -217,7 +217,7 @@ function inline_svg_sp($src, $attrs = '', $return = false) {
 /**
  * HTMLのattributesを配列化
  * @param string $str : 'attr1="hoge" attr2="moge"'
- * @return array : array("attr1"=> "hoge", "attr2"=>"moge")
+ * @return array : ["attr1"=> "hoge", "attr2"=>"moge"]
  */
 function parseAttributes($str){
   preg_match_all('/(\w+)=[\'"]([^\'"]*)/', $str, $matches, PREG_SET_ORDER);

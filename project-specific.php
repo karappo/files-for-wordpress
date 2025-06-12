@@ -98,12 +98,12 @@ add_action('admin_init', 'redirect_pages_list_for_specific_users');
 
 function my_plugin_allowed_block_types_all( $allowed_block_types, $block_editor_context ) {
   // 許可するブロックタイプ
-  $allowed_block_types = array(
+  $allowed_block_types = [
     'core/paragraph',
     'core/image',
     'core/gallery',
     'core/embed'
-  );
+  ];
   return $allowed_block_types;
 }
 add_filter( 'allowed_block_types_all', 'my_plugin_allowed_block_types_all', 10, 2 );
@@ -111,7 +111,7 @@ add_filter( 'allowed_block_types_all', 'my_plugin_allowed_block_types_all', 10, 
 // embedの中身をjs側で削除
 // 詳細は、remove-block.jsを参照
 add_action( 'enqueue_block_editor_assets', function() {
-  wp_enqueue_script( 'remove-block', get_template_directory_uri().'/karappo-common/remove-block.js', array(), false, true );
+  wp_enqueue_script( 'remove-block', get_template_directory_uri().'/karappo-common/remove-block.js', [], false, true );
 } );
 
 // ==========================================================
@@ -192,7 +192,7 @@ add_action('init', 'addCPT_news');
 function addCPT_news(){
   $cpt_name = 'news';
   // [A]ラベル
-  $labels = array(
+  $labels = [
     'name' => 'News',
     'singular_name' => 'News',
     'add_new' => 'Newsを追加',
@@ -204,35 +204,35 @@ function addCPT_news(){
     'not_found' => 'Newsはありません',
     'not_found_in_trash' => 'ゴミ箱にNewsはありません',
     'parent_item_colon' => ''
-  );
-  $args = array(
+  ];
+  $args = [
     'labels' => $labels,
     'public' => true,
     'capability_type' => 'post',
     'hierarchical' => false,
     'has_archive' => true,
     'show_in_rest' => true,
-    'supports' => array(
+    'supports' => [
       'title',
       'editor',
       'thumbnail'
-    ),
-  );
+    ]
+  ];
   register_post_type($cpt_name, $args);
 
   // [E]分類
   register_taxonomy(
     $cpt_name.'-category', // [D]
     $cpt_name,
-    array(
+    [
       'label' => 'カテゴリー', // [D]
       'show_ui' => true,
       'hierarchical' => true,
-      'rewrite'  => array(
+      'rewrite'  => [
         'slug' => "$cpt_name"
-      ),
+      ],
       'show_in_rest' => true,
-    )
+    ]
   );
 }
 

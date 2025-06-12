@@ -20,7 +20,7 @@ function enqueue_page_scripts() {
     wp_enqueue_style(
       $style,
       get_template_directory_uri() . '/assets/css/' . $style,
-      array(), // 依存関係があれば指定
+      [], // 依存関係があれば指定
       null // バージョン番号（必要に応じて指定）
     );
   }
@@ -34,7 +34,7 @@ function enqueue_page_scripts() {
     wp_enqueue_script(
         $script,
         get_template_directory_uri() . '/assets/js/dist/' . $script,
-        array('jquery'), // jQueryに依存
+        ['jquery'], // jQueryに依存
         null,
         true // フッターで読み込む
     );
