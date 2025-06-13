@@ -463,3 +463,47 @@ function txt_domain_delete_fullsize_image($metadata) {
 }
 add_filter('wp_generate_attachment_metadata', 'txt_domain_delete_fullsize_image');
 
+
+// ==========================================================
+//
+// タイトルの改行： [br] を <br>に変換
+
+add_filter( 'the_title', function( $title, $id ) {
+  if ( is_admin() ) {
+    return $title;
+  }
+  //
+  // フロントエンドの CPT: __CPT_NAME__ のみ
+  if ( get_post_type() === '__CPT_NAME__' ) {
+    return str_replace( '[br]', '<br>', $title );
+  }
+  return $title;
+}, 10, 2 );
+
+// 注意書きを追加
+
+function add_works_title_note_script() {
+  $screen = get_current_screen();
+  if ($screen && $screen->post_type === 'xxx') {
+    ?>
+    <script>
+    jQuery(document).ready(function ($) {
+      const $slugBox = $('#edit-slug-box');
+      if ($slugBox.length) {
+        $('<div>', {
+          html: '改行したい箇所には<code>[br]</code>を入力してください。',
+          css: {
+            fontSize: '13px',
+            color: '#666',
+            marginTop: '6px',
+            marginBottom: '6px'
+          }
+        }).insertBefore($slugBox);
+      }
+    });
+    </script>
+    <?php
+  }
+}
+add_action('admin_footer-post.php', 'add_works_title_note_script');
+add_action('admin_footer-post-new.php', 'add_works_title_note_script');
