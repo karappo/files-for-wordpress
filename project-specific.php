@@ -172,11 +172,24 @@ add_theme_support('post-thumbnails');
 // カスタムポストタイプで「revisions」を有効化
 
 function my_custom_revision() {
-  add_post_type_support( 'achievement', 'revisions' );
-  add_post_type_support( 'news', 'revisions' );
+  add_post_type_support('__CPT_NAME__', 'revisions');
 }
 add_action('init', 'my_custom_revision');
 
+
+// ==========================================================
+//
+// 管理画面からメタボックスを削除
+
+function remove_project_slug_metabox() {
+  if(!is_karappo_admin()) {
+    // スラッグ
+    remove_meta_box('slugdiv', '__CPT_NAME__', 'normal');
+    // リビジョン
+    remove_meta_box('revisionsdiv', '__CPT_NAME__', 'normal');
+  }
+}
+add_action( 'add_meta_boxes', 'remove_project_slug_metabox', 20 );
 
 // ==========================================================
 //
@@ -340,7 +353,7 @@ add_action('admin_footer-post-new.php', 'add_permalink_note_on_slug_box_update')
 
 function hide_add_category_button() {
   $style = '<style>';
-  
+
   // 非表示に
   $taxonomies = [
     'visit-condition',
@@ -356,14 +369,14 @@ function hide_add_category_button() {
     $ids[] = '#'.$taxonomy.'-adder';
   }
   $style .= implode(',', $ids) . ' { display: none; }';
-  
+
   // 線を消す
   $ids = [];
   foreach ($taxonomies as $taxonomy) {
     $ids[] = '#'.$taxonomy.'-all';
   }
   $style .= implode(',', $ids) . ' { border: none; }';
-  
+
   $style .= '</style>';
   echo $style;
 }
