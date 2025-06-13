@@ -468,17 +468,19 @@ add_filter('wp_generate_attachment_metadata', 'txt_domain_delete_fullsize_image'
 //
 // タイトルの改行： [br] を <br>に変換
 
-add_filter( 'the_title', function( $title, $id ) {
-  if ( is_admin() ) {
-    return $title;
+add_filter('the_title', function($title, $post_id = null) {
+  // 投稿IDが指定されていない場合は現在の投稿IDを使用
+  if ($post_id === null) {
+    $post_id = get_the_ID();
   }
-  //
-  // フロントエンドの CPT: __CPT_NAME__ のみ
-  if ( get_post_type() === '__CPT_NAME__' ) {
-    return str_replace( '[br]', '<br>', $title );
+
+  // 投稿タイプがprojectsの場合のみ変換
+  if (get_post_type($post_id) === 'projects') {
+    return str_replace('[br]', '<br>', $title);
   }
+
   return $title;
-}, 10, 2 );
+}, 10, 2);
 
 // 注意書きを追加
 
