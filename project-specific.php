@@ -116,6 +116,21 @@ add_action( 'enqueue_block_editor_assets', function() {
 
 // ==========================================================
 //
+// Gutenbergエディタから特定の見出しレベルを削除
+
+function example_modify_heading_levels_globally($args, $block_type) {
+  if ('core/heading' !== $block_type) {
+    return $args;
+  }
+  // H1, H5, H6 を削除
+  $args['attributes']['levelOptions']['default'] = [2, 3, 4];
+  return $args;
+}
+add_filter('register_block_type_args', 'example_modify_heading_levels_globally', 10, 2);
+
+
+// ==========================================================
+//
 // デバッグ用： 管理画面に現在登録されているブロックタイプを出力
 
 // add_action('admin_init', function() {
