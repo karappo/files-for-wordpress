@@ -119,7 +119,7 @@ add_action( 'enqueue_block_editor_assets', function() {
 // Gutenbergエディタから特定の見出しレベルを削除
 // https://ja.wordpress.org/team/handbook/block-editor/how-to-guides/curating-the-editor-experience/disable-editor-functionality/
 
-function example_modify_heading_levels_globally($args, $block_type) {
+function modify_heading_levels_globally($args, $block_type) {
   if ('core/heading' !== $block_type) {
     return $args;
   }
@@ -127,7 +127,7 @@ function example_modify_heading_levels_globally($args, $block_type) {
   $args['attributes']['levelOptions']['default'] = [2, 3, 4];
   return $args;
 }
-add_filter('register_block_type_args', 'example_modify_heading_levels_globally', 10, 2);
+add_filter('register_block_type_args', 'modify_heading_levels_globally', 10, 2);
 
 
 // ==========================================================
