@@ -203,6 +203,8 @@ function remove_project_slug_metabox() {
     remove_meta_box('slugdiv', '__CPT_NAME__', 'normal');
     // リビジョン
     remove_meta_box('revisionsdiv', '__CPT_NAME__', 'normal');
+    // ページ属性
+    remove_meta_box('pageparentdiv', '__CPT_NAME__', 'side');
   }
 }
 add_action( 'add_meta_boxes', 'remove_project_slug_metabox', 20 );
