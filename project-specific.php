@@ -197,17 +197,18 @@ add_action('init', 'my_custom_revision');
 //
 // 管理画面からメタボックスを削除
 
-function remove_project_slug_metabox() {
+function remove_metabox() {
   if(!is_karappo_admin()) {
-    // スラッグ
-    remove_meta_box('slugdiv', '__CPT_NAME__', 'normal');
     // リビジョン
     remove_meta_box('revisionsdiv', '__CPT_NAME__', 'normal');
     // ページ属性
     remove_meta_box('pageparentdiv', '__CPT_NAME__', 'side');
+    // スラッグ
+    // 【注意】 これをしてしまうと、スラッグの変更ができなくなるのでNG！やらないこと！
+    // remove_meta_box('slugdiv', '__CPT_NAME__', 'normal');
   }
 }
-add_action( 'add_meta_boxes', 'remove_project_slug_metabox', 20 );
+add_action( 'add_meta_boxes', 'remove_metabox', 20 );
 
 // ==========================================================
 //
