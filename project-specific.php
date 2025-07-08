@@ -3,14 +3,19 @@
 // [NOTICE!]
 // こちらの関数は、直接このファイルを読み込まず、function.phpに直接コピペして個別のプロジェクトごとに調整してください。
 
-// ==========================================================
-//
-// KarappAdmin以外のユーザーの時、サイドバーのメニューから不要なものを非表示
 
 function is_karappo_admin() {
   $current_user = wp_get_current_user();
   return $current_user->user_login == 'KarappoAdmin';
 }
+
+// ==========================================================
+//
+// KarappAdmin以外のユーザーの時、サイドバーのメニューから不要なものを非表示
+// 下記サイトで調べるとメニューの消し方がすぐ分かる
+// https://plugintests.com/plugins/{author}/{plugin}/tips
+// ※ プラグイン名の後に"/tips"を付与
+// 例（ACF）： https://plugintests.com/plugins/wporg/advanced-custom-fields/tips
 
 function custom_admin_menu() {
   if(!is_karappo_admin()) {
