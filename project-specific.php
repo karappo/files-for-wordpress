@@ -29,8 +29,11 @@ function custom_admin_menu() {
     remove_menu_page('edit.php?post_type=page'); // 固定ページ
     //remove_menu_page('upload.php'); // メディア
     //remove_submenu_page( 'upload.php', 'media-new.php' ); //新規追加
+
+    // プラグイン
     remove_menu_page('edit.php?post_type=acf-field-group'); // ACF
     remove_menu_page('wpcf7'); // Contact Form 7
+    remove_menu_page('simple_history_admin_menu_page'); // Simple History
   }
 
   // サイドバーに特定の固定ページ（例としてid:8）の編集画面へのリンクを追加
