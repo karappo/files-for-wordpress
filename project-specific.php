@@ -423,7 +423,7 @@ add_action('admin_footer-post-new.php', 'add_permalink_note_on_slug_box_update')
 //
 // 記事編集画面の右サイドバーの「カテゴリーの追加」を非表示に（旧エディタ用）
 
-function hide_add_category_button() {
+add_action('admin_head', function () {
   $style = '<style>';
 
   // 非表示に
@@ -451,21 +451,18 @@ function hide_add_category_button() {
 
   $style .= '</style>';
   echo $style;
-}
-add_action('admin_head', 'hide_add_category_button');
+});
 
 // ==========================================================
 //
 // 記事編集画面の右サイドバーの「カテゴリーの追加」を非表示に（Gutenberg用）
-
-function hide_add_category_button() {
+add_action('admin_head', function () {
     echo '<style>
         button.editor-post-taxonomies__hierarchical-terms-add {
             display: none !important;
         }
     </style>';
-}
-add_action('admin_head', 'hide_add_category_button');
+});
 
 // ==========================================================
 //
