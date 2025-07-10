@@ -51,6 +51,51 @@ function custom_admin_menu() {
 }
 add_action( 'admin_menu', 'custom_admin_menu' );
 
+
+// ==========================================================
+// 「更新してください」を非表示に
+
+function hide_update_notifications_for_non_admins() {
+  if(!is_karappo_admin()) {
+    // アップデート通知を削除
+    remove_action('admin_notices', 'update_nag', 3); // 「WordPress x.x.x が利用可能です ! 今すぐ更新してください。」を消す
+    remove_action('admin_notices', 'maintenance_nag'); // メンテナンス通知
+    add_filter('pre_site_transient_update_core', '__return_null');
+    add_filter('pre_site_transient_update_plugins', '__return_null');
+    add_filter('pre_site_transient_update_themes', '__return_null');
+
+    // プラグインページの「更新通知バッジ」などを非表示にする
+    global $wp_filter;
+    if (isset($wp_filter['admin_footer'])) {
+      unset($wp_filter['admin_footer']);
+    }
+  }
+}
+add_action('admin_init', 'hide_update_notifications_for_non_admins', 1);
+
+// ==========================================================
+// ダッシュボードの「PHP の更新を推奨」ウィジェット（WordPress 5.6以降）などを非表示にする
+
+function hide_dashboard_boxes_for_clients() {
+  if(!is_karappo_admin()) {
+    echo '
+      <style>
+        #dashboard_php_nag,
+        /*#dashboard_site_health,*/
+        #dashboard_right_now,
+        #dashboard_primary,
+        #dashboard_secondary,
+        #dashboard_quick_press,
+        #dashboard_activity {
+          display: none !important;
+        }
+      </style>
+    ';
+  }
+}
+add_action('admin_head', 'hide_dashboard_boxes_for_clients');
+
+
 // ==========================================================
 //
 // KarappAdmin以外のユーザーの時、管理バーの上部に表示される項目を非表示
