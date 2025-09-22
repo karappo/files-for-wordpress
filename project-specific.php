@@ -152,10 +152,17 @@ add_action('admin_init', 'redirect_pages_list_for_specific_users');
 function my_plugin_allowed_block_types_all( $allowed_block_types, $block_editor_context ) {
   // 許可するブロックタイプ
   $allowed_block_types = [
+    'core/audio',
     'core/paragraph',
+    'core/heading',
     'core/image',
+    'core/list',
+    'core/list-item',  // リストアイテム（リストの内部で使用。これがないとリストないで改行しても次のアイテムにならない不具合が発生する）
     'core/gallery',
-    'core/embed'
+    'core/embed',
+    'core/quote',
+    'core/separator',
+    // 'acf/custom-block',
   ];
   return $allowed_block_types;
 }
