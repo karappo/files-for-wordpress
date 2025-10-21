@@ -10,6 +10,15 @@ require_once('karappo-common/helpers.php');
 
 // ==========================================================
 //
+// xmlrpc.phpを無効化
+
+add_filter('xmlrpc_enabled', '__return_false', 10);
+
+// デフォルトで無効化しておくが、各プロジェクトごとに再有効かしたい場合は下記をそれぞのれのfunction.phpに追記して上書きすること。
+// add_filter('xmlrpc_enabled', '__return_false', 20);
+
+// ==========================================================
+//
 // グローバル変数を定義
 // helpers.phpなどで使用する
 
