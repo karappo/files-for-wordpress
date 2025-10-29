@@ -9,7 +9,15 @@ require_once('karappo-common/helpers.php');
 */
 
 // ==========================================================
-//
+// セキュリティ系
+
+// ----------------------------------------------------------
+// ファイル編集禁止
+
+define('DISALLOW_FILE_EDIT', true);
+define('DISALLOW_FILE_MODS', true); // 自動更新なども無効化
+
+// ----------------------------------------------------------
 // xmlrpc.phpを無効化
 
 add_filter('xmlrpc_enabled', '__return_false', 10);
@@ -17,8 +25,11 @@ add_filter('xmlrpc_enabled', '__return_false', 10);
 // デフォルトで無効化しておくが、各プロジェクトごとに再有効かしたい場合は下記をそれぞのれのfunction.phpに追記して上書きすること。
 // add_filter('xmlrpc_enabled', '__return_false', 20);
 
+
 // ==========================================================
-//
+// その他
+
+// ----------------------------------------------------------
 // グローバル変数を定義
 // helpers.phpなどで使用する
 
@@ -32,10 +43,8 @@ $GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST'])
 ```
 */
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 日本語ファイル名のアップロードを禁止
-
 function restrict_japanese_filenames($file) {
     $filename = $file['name'];
     // 日本語の文字が含まれているか確認
@@ -46,8 +55,7 @@ function restrict_japanese_filenames($file) {
 }
 add_filter('wp_handle_upload_prefilter', 'restrict_japanese_filenames');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 「ブログのトップに固定」を非表示
 // これをしておかないと、不用意にチェックされて、posts_per_page が機能しなくなるため
 
