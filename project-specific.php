@@ -3,14 +3,29 @@
 // [NOTICE!]
 // こちらの関数は、直接このファイルを読み込まず、function.phpに直接コピペして個別のプロジェクトごとに調整してください。
 
+// ==========================================================
+// セキュリティ系
+// 特別な理由がなければ適用するべき項目です。
+
+// ----------------------------------------------------------
+// 未ログイン時のREST APIアクセスを制限
+add_filter('rest_authentication_errors', function ($result) {
+    if (!is_user_logged_in()) {
+        return new WP_Error('rest_forbidden', 'REST API is disabled for unauthenticated users.', ['status' => 401]);
+    }
+    return $result;
+});
+
+
+// ==========================================================
+// カスタマイズ系
 
 function is_karappo_admin() {
   $current_user = wp_get_current_user();
   return $current_user->user_login == 'KarappoAdmin';
 }
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // KarappAdmin以外のユーザーの時、サイドバーのメニューから不要なものを非表示
 // 下記サイトで調べるとメニューの消し方がすぐ分かる
 // https://plugintests.com/plugins/{author}/{plugin}/tips
@@ -52,7 +67,7 @@ function custom_admin_menu() {
 add_action( 'admin_menu', 'custom_admin_menu' );
 
 
-// ==========================================================
+// ----------------------------------------------------------
 // 「更新してください」を非表示に
 
 function hide_update_notifications_for_non_admins() {
@@ -73,7 +88,7 @@ function hide_update_notifications_for_non_admins() {
 }
 add_action('admin_init', 'hide_update_notifications_for_non_admins', 1);
 
-// ==========================================================
+// ----------------------------------------------------------
 // ダッシュボードの「PHP の更新を推奨」ウィジェット（WordPress 5.6以降）などを非表示にする
 
 function hide_dashboard_boxes_for_clients() {
@@ -96,8 +111,7 @@ function hide_dashboard_boxes_for_clients() {
 add_action('admin_head', 'hide_dashboard_boxes_for_clients');
 
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // KarappAdmin以外のユーザーの時、管理バーの上部に表示される項目を非表示
 
 function my_remove_adminbar_menu($wp_admin_bar) {
@@ -127,8 +141,7 @@ function my_remove_adminbar_menu($wp_admin_bar) {
 }
 add_action('admin_bar_menu', 'my_remove_adminbar_menu', 201);
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 固定ページの一覧ページにきたとしたら、特定の固定ページ（例としてid:8）へリダイレクト
 
 function redirect_pages_list_for_specific_users() {
@@ -143,8 +156,7 @@ function redirect_pages_list_for_specific_users() {
 add_action('admin_init', 'redirect_pages_list_for_specific_users');
 
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // Gutenbergエディタから使用するブロックだけを表示
 // ブロックタイプはこちらを参照
 // https://wpqw.jp/wordpress/block-editor/remove-blocks58/
@@ -174,8 +186,7 @@ add_action( 'enqueue_block_editor_assets', function() {
   wp_enqueue_script( 'remove-block', get_template_directory_uri().'/karappo-common/remove-block.js', [], false, true );
 } );
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // Gutenbergエディタから特定の見出しレベルを削除
 // https://ja.wordpress.org/team/handbook/block-editor/how-to-guides/curating-the-editor-experience/disable-editor-functionality/
 
@@ -190,8 +201,7 @@ function modify_heading_levels_globally($args, $block_type) {
 add_filter('register_block_type_args', 'modify_heading_levels_globally', 10, 2);
 
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // デバッグ用： 管理画面に現在登録されているブロックタイプを出力
 
 // add_action('admin_init', function() {
@@ -205,8 +215,7 @@ add_filter('register_block_type_args', 'modify_heading_levels_globally', 10, 2);
 //     echo '</pre>';
 // });
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 「投稿」をリネーム
 
 function change_admin_menu() {
@@ -237,14 +246,12 @@ function change_post_object_label() {
 }
 add_action( 'init', 'change_post_object_label' );
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // アイキャッチ画像を有効にする。
 
 add_theme_support('post-thumbnails');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // カスタムポストタイプで「revisions」を有効化
 
 function my_custom_revision() {
@@ -253,8 +260,7 @@ function my_custom_revision() {
 add_action('init', 'my_custom_revision');
 
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 管理画面からメタボックスを削除
 
 function remove_metabox() {
@@ -270,8 +276,7 @@ function remove_metabox() {
 }
 add_action( 'add_meta_boxes', 'remove_metabox', 20 );
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // カスタムポストタイプ
 
 // src: https://gist.github.com/naokazuterada/5556068
@@ -328,8 +333,7 @@ function addCPT_news(){
   );
 }
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 管理画面の特定のページに説明文を表示
 
 function displayCategoryNotice() {
@@ -358,8 +362,7 @@ function displayCategoryNotice() {
 }
 add_action('admin_notices', 'displayCategoryNotice');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // CPT:xxxのページタイトル下かつパーマリンクの上に注釈を追加
 
 function add_works_title_note_script() {
@@ -388,8 +391,7 @@ function add_works_title_note_script() {
 add_action('admin_footer-post.php', 'add_works_title_note_script');
 add_action('admin_footer-post-new.php', 'add_works_title_note_script');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // CPT:xxx のパーマリンクに注釈を追加
 // （新規作成時には、#edit-slug-boxの中身が空なので、その時は表示せず、パーマリンクが表示された時（表示されている時）にのみ注意書きを表示する）
 
@@ -426,8 +428,7 @@ function add_permalink_note_on_slug_box_update() {
 add_action('admin_footer-post.php', 'add_permalink_note_on_slug_box_update');
 add_action('admin_footer-post-new.php', 'add_permalink_note_on_slug_box_update');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 記事編集画面の右サイドバーの「カテゴリーの追加」を非表示に（旧エディタ用）
 
 add_action('admin_head', function () {
@@ -460,8 +461,7 @@ add_action('admin_head', function () {
   echo $style;
 });
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 記事編集画面の右サイドバーの「カテゴリーの追加」を非表示に（Gutenberg用）
 add_action('admin_head', function () {
     echo '<style>
@@ -471,14 +471,12 @@ add_action('admin_head', function () {
     </style>';
 });
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // wp_headでhead>titleを出力しない（head.blade.phpで一元管理する）
 
 remove_action( 'wp_head', '_wp_render_title_tag', 1 );
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // デフォルトでは2560px以上の画像は画像名に"-scaled"が付与されて縮小保存される機能に関して…
 // 1. 閾値を変更したい場合
 function change_big_image_size_threshold( $threshold ) {
@@ -488,8 +486,7 @@ add_filter('big_image_size_threshold', 'change_big_image_size_threshold', 999, 1
 // 2. 機能自体を無効化したい場合
 add_filter( 'big_image_size_threshold', '__return_false' );
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // サムネイルサイズを削除
 
 function remove_thumbnail_sizes( $new_sizes ) {
@@ -508,15 +505,13 @@ function remove_thumbnail_sizes( $new_sizes ) {
 }
 add_filter('intermediate_image_sizes_advanced', 'remove_thumbnail_sizes');
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // サムネイルサイズを追加
 
 add_image_size('picture', 163, 163, true);
 add_image_size('picture-2x', 326, 326, true);
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // 大きすぎる画像は容量削減のために自動削除
 // （big_image_size_thresholdでscaleされていない画像は、リサイズ後に削除）
 
@@ -540,8 +535,7 @@ function txt_domain_delete_fullsize_image($metadata) {
 add_filter('wp_generate_attachment_metadata', 'txt_domain_delete_fullsize_image');
 
 
-// ==========================================================
-//
+// ----------------------------------------------------------
 // タイトルの改行： [br] を <br>に変換
 
 add_filter('the_title', function($title, $post_id = null) {
