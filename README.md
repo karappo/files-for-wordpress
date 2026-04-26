@@ -10,8 +10,11 @@
   git submodule add git@github.com:karappo/files-for-wordpress.git wp/wp-content/themes/{project}/karappo-common
   ```
 2. {project}/functions.php で外部ファイルの読み込み設定を追加
-  ```
+  ```php
   require_once('karappo-common/common.php');
   require_once('karappo-common/helpers.php');
+
+  // デフォルト設定の上書き（必要に応じて）
+  karappo_common_config(['breakpoint' => 700]);
   ```
 3. その他、各プロジェクトごとにカスタマイズが必要なものは、 project-specific.php にまとめているので、目を通して必要に応じて設定

@@ -2,6 +2,26 @@
 
 // ==========================================================
 //
+// Config
+
+$karappo_common_config = [
+  'breakpoint' => 1000,
+];
+
+/**
+ * karappo-common のデフォルト設定を上書きする
+ * テーマの functions.php 等で呼び出す:
+ *   karappo_common_config(['breakpoint' => 700]);
+ *
+ * @param array $overrides 上書きする設定の連想配列
+ */
+function karappo_common_config($overrides) {
+  global $karappo_common_config;
+  $karappo_common_config = array_merge($karappo_common_config, $overrides);
+}
+
+// ==========================================================
+//
 // Helpers
 
 function assets_image_path($path) {
@@ -157,11 +177,13 @@ function get_image_filepath($src) {
  *
  * @param string $src 画像パス
  * @param string $attrs 属性文字列
- * @param int $bp ブレークポイント（デフォルト1000）
+ * @param int|null $bp ブレークポイント（省略時はグローバル設定値）
  * @param bool $return trueなら文字列を返す
  * @return string|null
  */
-function pict_tag($src, $attrs = '', $bp = 1000, $return = false) {
+function pict_tag($src, $attrs = '', $bp = null, $return = false) {
+  global $karappo_common_config;
+  if ($bp === null) $bp = $karappo_common_config['breakpoint'];
   $sp_src = preg_replace('/(\.\w+)$/', '-sp$1', $src);
   $sp_retina_src = preg_replace('/(\.\w+)$/', '@2x$1', $sp_src);
   $source_srcset = assets_image_path($sp_src) . ', ' . assets_image_path($sp_retina_src) . ' 2x';
@@ -195,11 +217,13 @@ function pict_tag($src, $attrs = '', $bp = 1000, $return = false) {
  *
  * @param string $src 画像パス
  * @param string $attrs 属性文字列
- * @param int $bp ブレークポイント（デフォルト1000）
+ * @param int|null $bp ブレークポイント（省略時はグローバル設定値）
  * @param bool $return trueなら文字列を返す
  * @return string|null
  */
-function picture_tag($src, $attrs = '', $bp = 1000, $return = false) {
+function picture_tag($src, $attrs = '', $bp = null, $return = false) {
+  global $karappo_common_config;
+  if ($bp === null) $bp = $karappo_common_config['breakpoint'];
   $is_webp = preg_match('/\.webp$/', $src);
 
   // .webp指定時はフォールバック用のPNG/JPGパスを導出
