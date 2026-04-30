@@ -4,6 +4,7 @@
 //
 // Config
 
+global $karappo_common_config;
 $karappo_common_config = [
   'breakpoint' => 1000,
 ];
