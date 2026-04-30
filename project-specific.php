@@ -282,56 +282,79 @@ add_action( 'add_meta_boxes', 'remove_metabox', 20 );
 // src: https://gist.github.com/naokazuterada/5556068
 
 // ------------------------
-// CustomPostType: news
+// register_cpt ヘルパー
+//
+// CPT と（オプションで）同名カテゴリータクソノミーをまとめて登録する短縮形。
+// プロジェクトの functions.php に貼り付けて使う。
+//
+// 引数:
+//   $cpt_name         CPT slug（例: 'news'）。タクソノミーは "{slug}-category" になる
+//   $name             表示名（例: 'News'）。labels に展開される
+//   $supports         supports 配列（例: ['title', 'thumbnail', 'editor']）。'revisions' は自動付与
+//   $register_taxonomy true の場合、同名カテゴリータクソノミーも登録
+//   $taxonomy_label   タクソノミーの label（省略時は 'カテゴリー'）
+//   $default_term     カテゴリー未選択時のデフォルト term（WP 5.5+）。
+//                     ['name' => 表示名, 'slug' => スラッグ] の形で渡す。
+//                     term が存在しなければ自動作成。slug を必ず指定すること
+//                     （省略すると既存 term の照合に失敗して option が更新されない）
 // ------------------------
 
-add_action('init', 'addCPT_news');
-function addCPT_news(){
-  $cpt_name = 'news';
-  // [A]ラベル
-  $labels = [
-    'name' => 'News',
-    'singular_name' => 'News',
-    'add_new' => 'Newsを追加',
-    'add_new_item' => '新しいNewsを追加',
-    'edit_item' => 'Newsを編集',
-    'new_item' => '新しいNews',
-    'view_item' => 'Newsを表示',
-    'search_items' => 'Newsを探す',
-    'not_found' => 'Newsはありません',
-    'not_found_in_trash' => 'ゴミ箱にNewsはありません',
-    'parent_item_colon' => ''
-  ];
-  $args = [
-    'labels' => $labels,
+function register_cpt($cpt_name, $name, $supports, $register_taxonomy = false, $taxonomy_label = null, $default_term = null) {
+  $supports[] = 'revisions';
+  register_post_type($cpt_name, [
+    'labels' => [
+      'name' => $name,
+      'singular_name' => $name,
+      'add_new' => $name.'を追加',
+      'add_new_item' => '新しい'.$name.'を追加',
+      'edit_item' => $name.'を編集',
+      'new_item' => '新しい'.$name,
+      'view_item' => $name.'を表示',
+      'search_items' => $name.'を探す',
+      'not_found' => $name.'はありません',
+      'not_found_in_trash' => 'ゴミ箱に'.$name.'はありません',
+      'parent_item_colon' => ''
+    ],
     'public' => true,
     'capability_type' => 'post',
     'hierarchical' => false,
     'has_archive' => true,
     'show_in_rest' => true,
-    'supports' => [
-      'title',
-      'editor',
-      'thumbnail'
-    ]
-  ];
-  register_post_type($cpt_name, $args);
-
-  // [E]分類
-  register_taxonomy(
-    $cpt_name.'-category', // [D]
-    $cpt_name,
-    [
-      'label' => 'カテゴリー', // [D]
+    'supports' => $supports
+  ]);
+  if ($register_taxonomy) {
+    $taxonomy_args = [
+      'label' => $taxonomy_label ?? 'カテゴリー',
       'show_ui' => true,
+      'public' => true,
       'hierarchical' => true,
-      'rewrite'  => [
-        'slug' => "$cpt_name"
+      'rewrite' => [
+        'slug' => $cpt_name,
+        'with_front' => false
       ],
       'show_in_rest' => true,
-    ]
-  );
+    ];
+    if ($default_term) {
+      $taxonomy_args['default_term'] = $default_term;
+    }
+    register_taxonomy($cpt_name.'-category', $cpt_name, $taxonomy_args);
+  }
 }
+
+// 使用例:
+add_action('init', function() {
+  // CPT のみ
+  register_cpt('classes', 'Classes', ['title', 'thumbnail', 'editor']);
+
+  // CPT + 同名カテゴリータクソノミー
+  register_cpt('activity', 'Activity', ['title', 'thumbnail', 'editor'], true);
+
+  // CPT + カテゴリー + デフォルト term（未選択時に自動付与）
+  register_cpt('news', 'News', ['title', 'thumbnail', 'editor'], true, null, [
+    'name' => 'Information',
+    'slug' => 'information',
+  ]);
+});
 
 // ----------------------------------------------------------
 // 管理画面の特定のページに説明文を表示
