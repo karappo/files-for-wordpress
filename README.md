@@ -28,18 +28,23 @@ karappoの標準的なWPプロジェクト構成（`wp/` 配下にWP本体、`..
 
 #### セットアップ
 
-各プロジェクトの `package.json` の `scripts` に追加するだけ（`config` 不要）:
+`package.json` の `scripts` に追加するだけ（`config` 不要）。
+WP ディレクトリは cwd から `wp-config.php` を上方向探索して自動検出するので、どこから実行してもOKです。
+
+テーマの `package.json`（`wp/wp-content/themes/{theme}/package.json`）に書く例:
 
 ```json
 {
   "scripts": {
-    "db:export":  "wp/wp-content/themes/{theme}/karappo-common/bin/db export",
-    "db:import":  "wp/wp-content/themes/{theme}/karappo-common/bin/db import",
-    "db:replace": "wp/wp-content/themes/{theme}/karappo-common/bin/db replace",
-    "db:ls":      "wp/wp-content/themes/{theme}/karappo-common/bin/db ls"
+    "db:export":  "karappo-common/bin/db export",
+    "db:import":  "karappo-common/bin/db import",
+    "db:replace": "karappo-common/bin/db replace",
+    "db:ls":      "karappo-common/bin/db ls"
   }
 }
 ```
+
+プロジェクトルートの `package.json` に書く場合はパスを `wp/wp-content/themes/{theme}/karappo-common/bin/db` に置き換えてください。
 
 #### 使い方
 
@@ -58,7 +63,7 @@ pnpm db:ls                                  # バックアップ一覧
 
 | 設定 | 環境変数 | package.json | デフォルト |
 |------|---------|--------------|----------|
-| WP ディレクトリ | `KARAPPO_DB_WP_PATH` | `config.wp_path` | `wp` |
+| WP ディレクトリ | `KARAPPO_DB_WP_PATH` | `config.wp_path` | cwd から `wp-config.php` を上方向探索 |
 | バックアップ先 (WPからの相対) | `KARAPPO_DB_BACKUP_DIR` | `config.backup_dir` | `../_assets/database` |
 
 #### fzf のインストール（推奨）

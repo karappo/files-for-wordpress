@@ -12,20 +12,40 @@
 #   db help                   このヘルプ
 #
 # 設定 (env、または package.json の "config" から自動 env 化):
-#   KARAPPO_DB_WP_PATH        WordPress ディレクトリ (default: wp)
+#   KARAPPO_DB_WP_PATH        WordPress ディレクトリ (default: cwd から wp-config.php を上方向探索)
 #   KARAPPO_DB_BACKUP_DIR     バックアップ保存先 (default: ../_assets/database, WP_PATH からの相対)
 #
 
 set -euo pipefail
 
-WP_PATH="${KARAPPO_DB_WP_PATH:-${npm_package_config_wp_path:-wp}}"
+detect_wp_path() {
+  local explicit="${KARAPPO_DB_WP_PATH:-${npm_package_config_wp_path:-}}"
+  if [ -n "$explicit" ]; then
+    echo "$explicit"
+    return
+  fi
+  local dir
+  dir="$(pwd)"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/wp-config.php" ]; then
+      echo "$dir"
+      return
+    fi
+    if [ -f "$dir/wp/wp-config.php" ]; then
+      echo "$dir/wp"
+      return
+    fi
+    dir="$(dirname "$dir")"
+  done
+  echo "wp"
+}
+
+WP_PATH="$(detect_wp_path)"
 BACKUP_DIR="${KARAPPO_DB_BACKUP_DIR:-${npm_package_config_backup_dir:-../_assets/database}}"
 
-PROJECT_ROOT="$(pwd)"
-
-if [ ! -d "$PROJECT_ROOT/$WP_PATH" ]; then
-  echo "Error: WP directory not found: $PROJECT_ROOT/$WP_PATH" >&2
-  echo "       Run this script from your project root, or set KARAPPO_DB_WP_PATH." >&2
+if [ ! -d "$WP_PATH" ]; then
+  echo "Error: WP directory not found: $WP_PATH" >&2
+  echo "       wp-config.php が見つかりませんでした。KARAPPO_DB_WP_PATH で明示指定してください。" >&2
   exit 1
 fi
 
