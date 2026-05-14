@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+#
+# karappo-common: WordPress DB backup/restore helper
+#
+# Usage:
+#   db export                 現在のDBをタイムスタンプ付きで書き出し
+#   db import                 一覧から選んで復元 (fzf推奨)
+#   db import latest          最新を復元
+#   db import <file>          指定ファイルを復元
+#   db replace <from> <to>    wp search-replace ラッパー
+#   db ls                     バックアップ一覧
+#   db help                   このヘルプ
+#
+# 設定 (env、または package.json の "config" から自動 env 化):
+#   KARAPPO_DB_WP_PATH        WordPress ディレクトリ (default: wp)
+#   KARAPPO_DB_BACKUP_DIR     バックアップ保存先 (default: ../_assets/database, WP_PATH からの相対)
+#   npm_package_config_dev_host   "dev" shortcut 解決用 (任意)
+#   npm_package_config_prod_host  "prod" shortcut 解決用 (任意)
+#
+
+set -euo pipefail
+
+WP_PATH="${KARAPPO_DB_WP_PATH:-${npm_package_config_wp_path:-wp}}"
+BACKUP_DIR="${KARAPPO_DB_BACKUP_DIR:-${npm_package_config_backup_dir:-../_assets/database}}"
+
+PROJECT_ROOT="$(pwd)"
+
+if [ ! -d "$PROJECT_ROOT/$WP_PATH" ]; then
+  echo "Error: WP directory not found: $PROJECT_ROOT/$WP_PATH" >&2
+  echo "       Run this script from your project root, or set KARAPPO_DB_WP_PATH." >&2
+  exit 1
+fi
+
+ensure_backup_dir() {
+  mkdir -p "$BACKUP_DIR"
+}
+
+list_backups() {
+  ls -t "$BACKUP_DIR"/dev-*.sql 2>/dev/null || true
+}
+
+resolve_host() {
+  local key="$1"
+  local var="npm_package_config_${key}_host"
+  local val="${!var:-}"
+  if [ -n "$val" ]; then
+    echo "$val"
+  else
+    echo "$key"
+  fi
+}
+
+cmd_export() {
+  cd "$WP_PATH"
+  ensure_backup_dir
+  local ts
+  ts=$(date +%Y%m%d-%H%M%S)
+  local file="$BACKUP_DIR/dev-${ts}.sql"
+  wp db export "$file"
+  echo "✓ exported: $(cd "$BACKUP_DIR" && pwd)/dev-${ts}.sql"
+}
+
+cmd_import() {
+  local target="${1:-}"
+  cd "$WP_PATH"
+
+  if [ -z "$target" ]; then
+    local backups
+    backups=$(list_backups)
+    if [ -z "$backups" ]; then
+      echo "No backups found in $BACKUP_DIR" >&2
+      exit 1
+    fi
+
+    if command -v fzf >/dev/null 2>&1; then
+      target=$(echo "$backups" | fzf --prompt="Select backup to restore > " --height=40% --reverse) || exit 1
+    else
+      echo "Hint: install 'fzf' for nicer selection (brew install fzf)"
+      echo ""
+      echo "Available backups (newest first):"
+      local files=()
+      while IFS= read -r line; do files+=("$line"); done <<< "$backups"
+      PS3="Select number (or Ctrl-C to cancel): "
+      select f in "${files[@]}"; do
+        if [ -n "${f:-}" ]; then
+          target="$f"
+          break
+        fi
+      done
+    fi
+  elif [ "$target" = "latest" ]; then
+    target=$(list_backups | head -n 1)
+    if [ -z "$target" ]; then
+      echo "No backups found in $BACKUP_DIR" >&2
+      exit 1
+    fi
+  fi
+
+  if [ ! -f "$target" ]; then
+    echo "Backup file not found: $target" >&2
+    exit 1
+  fi
+
+  echo "→ importing: $target"
+  wp db reset --yes
+  wp db import "$target"
+  echo "✓ imported"
+}
+
+cmd_replace() {
+  local from="${1:-}"
+  local to="${2:-}"
+  if [ -z "$from" ] || [ -z "$to" ]; then
+    echo "Usage: db replace <from> <to>" >&2
+    echo "  Literal host or shortcut: dev / prod (if configured in package.json)" >&2
+    exit 1
+  fi
+  from=$(resolve_host "$from")
+  to=$(resolve_host "$to")
+  cd "$WP_PATH"
+  wp search-replace "$from" "$to"
+}
+
+cmd_ls() {
+  if [ ! -d "$WP_PATH/$BACKUP_DIR" ] && [ ! -d "$BACKUP_DIR" ]; then
+    echo "No backup directory yet: $BACKUP_DIR (relative to $WP_PATH)"
+    return
+  fi
+  cd "$WP_PATH"
+  if [ ! -d "$BACKUP_DIR" ]; then
+    echo "No backups in $BACKUP_DIR"
+    return
+  fi
+  local backups
+  backups=$(list_backups)
+  if [ -z "$backups" ]; then
+    echo "No backups in $BACKUP_DIR"
+    return
+  fi
+  echo "$backups" | xargs -I{} ls -lh {} | awk '{print $5"\t"$6, $7, $8"\t"$9}'
+}
+
+cmd_help() {
+  sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+main() {
+  local cmd="${1:-help}"
+  shift || true
+  case "$cmd" in
+    export)  cmd_export "$@" ;;
+    import)  cmd_import "$@" ;;
+    replace) cmd_replace "$@" ;;
+    ls|list) cmd_ls "$@" ;;
+    help|-h|--help) cmd_help ;;
+    *)
+      echo "Unknown command: $cmd" >&2
+      echo "" >&2
+      cmd_help >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

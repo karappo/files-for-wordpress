@@ -18,3 +18,80 @@
   karappo_common_config(['breakpoint' => 700]);
   ```
 3. その他、各プロジェクトごとにカスタマイズが必要なものは、 project-specific.php にまとめているので、目を通して必要に応じて設定
+
+## CLI tools
+
+### `bin/db` — DB バックアップ / リストア / ホスト置換
+
+タイムスタンプ付きでDBをバックアップし、一覧から選んでリストアできるシェルスクリプト。
+karappoの標準的なWPプロジェクト構成（`wp/` 配下にWP本体、`../_assets/database/` にダンプ置き場）でゼロコンフィグ動作します。
+
+#### セットアップ
+
+各プロジェクトの `package.json` の `scripts` に追加するだけ（`config` 不要）:
+
+```json
+{
+  "scripts": {
+    "db:export":  "wp/wp-content/themes/{theme}/karappo-common/bin/db export",
+    "db:import":  "wp/wp-content/themes/{theme}/karappo-common/bin/db import",
+    "db:replace": "wp/wp-content/themes/{theme}/karappo-common/bin/db replace",
+    "db:ls":      "wp/wp-content/themes/{theme}/karappo-common/bin/db ls"
+  }
+}
+```
+
+#### 使い方
+
+```sh
+pnpm db:export                    # ../_assets/database/dev-YYYYMMDD-HHMMSS.sql に書き出し
+pnpm db:import                    # 一覧から選択して復元 (fzf推奨)
+pnpm db:import latest             # 最新を復元
+pnpm db:import path/to/file.sql   # ファイル指定で復元
+pnpm db:replace foo.test foo.com  # wp search-replace のラッパー
+pnpm db:ls                        # バックアップ一覧
+```
+
+#### ホスト置換 shortcut
+
+`package.json` の `config.dev_host` / `config.prod_host` を定義すると `dev` / `prod` の shortcut が使えます:
+
+```json
+{
+  "config": {
+    "dev_host":  "example.test",
+    "prod_host": "example.com"
+  },
+  "scripts": {
+    "db:replace": "wp/wp-content/themes/{theme}/karappo-common/bin/db replace"
+  }
+}
+```
+
+```sh
+pnpm db:replace dev prod   # example.test → example.com
+pnpm db:replace prod dev   # example.com → example.test
+```
+
+#### 設定のカスタマイズ
+
+デフォルトと違うパスを使いたい場合は env か `package.json` の `config` で上書き:
+
+| 設定 | 環境変数 | package.json | デフォルト |
+|------|---------|--------------|----------|
+| WP ディレクトリ | `KARAPPO_DB_WP_PATH` | `config.wp_path` | `wp` |
+| バックアップ先 (WPからの相対) | `KARAPPO_DB_BACKUP_DIR` | `config.backup_dir` | `../_assets/database` |
+
+#### fzf のインストール（推奨）
+
+`db import` の選択UIが劇的に快適になります:
+
+```sh
+# macOS
+brew install fzf
+
+# Ubuntu/Debian
+sudo apt install fzf
+```
+
+未インストールでも標準の `select` プロンプトで動作します。
