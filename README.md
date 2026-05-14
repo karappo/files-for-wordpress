@@ -44,33 +44,12 @@ karappoの標準的なWPプロジェクト構成（`wp/` 配下にWP本体、`..
 #### 使い方
 
 ```sh
-pnpm db:export                    # ../_assets/database/dev-YYYYMMDD-HHMMSS.sql に書き出し
-pnpm db:import                    # 一覧から選択して復元 (fzf推奨)
-pnpm db:import latest             # 最新を復元
-pnpm db:import path/to/file.sql   # ファイル指定で復元
-pnpm db:replace foo.test foo.com  # wp search-replace のラッパー
-pnpm db:ls                        # バックアップ一覧
-```
-
-#### ホスト置換 shortcut
-
-`package.json` の `config.dev_host` / `config.prod_host` を定義すると `dev` / `prod` の shortcut が使えます:
-
-```json
-{
-  "config": {
-    "dev_host":  "example.test",
-    "prod_host": "example.com"
-  },
-  "scripts": {
-    "db:replace": "wp/wp-content/themes/{theme}/karappo-common/bin/db replace"
-  }
-}
-```
-
-```sh
-pnpm db:replace dev prod   # example.test → example.com
-pnpm db:replace prod dev   # example.com → example.test
+pnpm db:export                              # ../_assets/database/dev-YYYYMMDD-HHMMSS.sql に書き出し
+pnpm db:import                              # 一覧から選択して復元 (fzf推奨)
+pnpm db:import latest                       # 最新を復元
+pnpm db:import path/to/file.sql             # ファイル指定で復元
+pnpm db:replace example.test example.com    # wp search-replace のラッパー (host はリテラル指定)
+pnpm db:ls                                  # バックアップ一覧
 ```
 
 #### 設定のカスタマイズ

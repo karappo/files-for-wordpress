@@ -7,15 +7,13 @@
 #   db import                 一覧から選んで復元 (fzf推奨)
 #   db import latest          最新を復元
 #   db import <file>          指定ファイルを復元
-#   db replace <from> <to>    wp search-replace ラッパー
+#   db replace <from> <to>    wp search-replace ラッパー (リテラル host)
 #   db ls                     バックアップ一覧
 #   db help                   このヘルプ
 #
 # 設定 (env、または package.json の "config" から自動 env 化):
 #   KARAPPO_DB_WP_PATH        WordPress ディレクトリ (default: wp)
 #   KARAPPO_DB_BACKUP_DIR     バックアップ保存先 (default: ../_assets/database, WP_PATH からの相対)
-#   npm_package_config_dev_host   "dev" shortcut 解決用 (任意)
-#   npm_package_config_prod_host  "prod" shortcut 解決用 (任意)
 #
 
 set -euo pipefail
@@ -37,17 +35,6 @@ ensure_backup_dir() {
 
 list_backups() {
   ls -t "$BACKUP_DIR"/dev-*.sql 2>/dev/null || true
-}
-
-resolve_host() {
-  local key="$1"
-  local var="npm_package_config_${key}_host"
-  local val="${!var:-}"
-  if [ -n "$val" ]; then
-    echo "$val"
-  else
-    echo "$key"
-  fi
 }
 
 cmd_export() {
@@ -112,11 +99,8 @@ cmd_replace() {
   local to="${2:-}"
   if [ -z "$from" ] || [ -z "$to" ]; then
     echo "Usage: db replace <from> <to>" >&2
-    echo "  Literal host or shortcut: dev / prod (if configured in package.json)" >&2
     exit 1
   fi
-  from=$(resolve_host "$from")
-  to=$(resolve_host "$to")
   cd "$WP_PATH"
   wp search-replace "$from" "$to"
 }
@@ -141,7 +125,7 @@ cmd_ls() {
 }
 
 cmd_help() {
-  sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,16p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 main() {
