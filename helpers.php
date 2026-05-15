@@ -378,6 +378,45 @@ function parseAttributes($str){
  * @return string
  */
 
+/**
+ * テキスト中のURLを自動的に <a> 化する。
+ * 外部ホスト（home_url のホスト名と異なるもの）には target="_blank" rel="noopener" を付与する。
+ *
+ * 戻り値はサニタイズしていないHTMLなので、ユーザー入力を扱う場合は wp_kses_post() 等でラップして出力すること。
+ * 例: echo wp_kses_post(auto_link($profile));
+ *
+ * @param string $text 元テキスト（プレーンテキスト or HTML）
+ * @return string URLがリンク化されたHTML
+ */
+function auto_link($text) {
+  if (!is_string($text) || $text === '') return $text;
+
+  // make_clickable は `<br />\r\n` のようなCRLFが入ると URL を検出できないので正規化
+  $html = make_clickable(str_replace(["\r\n", "\r"], "\n", $text));
+
+  $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+
+  return preg_replace_callback(
+    '/<a\s+([^>]*?)href=(["\'])([^"\']+)\2([^>]*?)>/i',
+    function ($m) use ($site_host) {
+      $host = wp_parse_url($m[3], PHP_URL_HOST);
+      if (!$host || strcasecmp($host, $site_host) === 0) {
+        return $m[0];
+      }
+      $attrs = $m[1] . $m[4];
+      $extra = '';
+      if (stripos($attrs, 'target=') === false) {
+        $extra .= ' target="_blank"';
+      }
+      if (stripos($attrs, 'rel=') === false) {
+        $extra .= ' rel="noopener"';
+      }
+      return '<a ' . $m[1] . 'href=' . $m[2] . $m[3] . $m[2] . $m[4] . $extra . '>';
+    },
+    $html
+  );
+}
+
 function get_attr_for_link($link) {
   $attr = '';
   // $linkが文字列だったら
