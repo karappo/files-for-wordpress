@@ -434,3 +434,35 @@ function get_attr_for_link($link) {
   }
   return $attr;
 }
+
+// ==========================================================
+//
+// Asset cache busting
+//
+// テーマ内アセットのファイル更新時刻（mtime）を `?ver=` に渡し、
+// 編集の都度ブラウザ・実機キャッシュが自動で切れるようにする。
+
+/**
+ * テーマディレクトリ起点の相対パスからファイルの mtime を返す
+ * @param string $relative_path 例: 'assets/css/common.css'
+ * @return string|false 10進文字列。ファイルが無ければ false（WP デフォルトの ver にフォールバック）
+ */
+function asset_version($relative_path) {
+  $abs = get_template_directory() . '/' . ltrim($relative_path, '/');
+  return file_exists($abs) ? (string) filemtime($abs) : false;
+}
+
+/**
+ * wp_enqueue_style のラッパー。version に asset_version() を渡す。
+ */
+function enqueue_style_with_version($handle, $relative_path, $deps = []) {
+  wp_enqueue_style($handle, get_template_directory_uri() . '/' . ltrim($relative_path, '/'), $deps, asset_version($relative_path));
+}
+
+/**
+ * wp_enqueue_script のラッパー。version に asset_version() を渡す。
+ * デフォルトで footer 出力（$in_footer = true）。
+ */
+function enqueue_script_with_version($handle, $relative_path, $deps = [], $in_footer = true) {
+  wp_enqueue_script($handle, get_template_directory_uri() . '/' . ltrim($relative_path, '/'), $deps, asset_version($relative_path), $in_footer);
+}
