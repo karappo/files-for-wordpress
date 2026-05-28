@@ -507,7 +507,29 @@ function change_big_image_size_threshold( $threshold ) {
 }
 add_filter('big_image_size_threshold', 'change_big_image_size_threshold', 999, 1);
 // 2. 機能自体を無効化したい場合
-add_filter( 'big_image_size_threshold', '__return_false' );
+// add_filter( 'big_image_size_threshold', '__return_false' );
+
+// ----------------------------------------------------------
+// 画像のファイル容量の上限（寸法の上限とは別に設ける）
+// big_image_size_threshold は「寸法」しか見ないため、寸法が閾値以下でも
+// 高品質で重い JPEG はそのまま残り、SNS の OGP 画像でカードが出ない等の原因になる。
+// 一定容量を超える JPEG をアップロード時に再圧縮して軽量化する（寸法は維持）。
+
+add_filter('wp_handle_upload', function ($upload) {
+  $max_filesize = 1.5 * 1024 * 1024; // この容量を超える JPEG が対象
+  $quality      = 82;
+
+  if (($upload['type'] ?? '') !== 'image/jpeg') return $upload;
+  if (filesize($upload['file']) <= $max_filesize) return $upload;
+
+  $editor = wp_get_image_editor($upload['file']);
+  if (is_wp_error($editor)) return $upload;
+
+  $editor->set_quality($quality);
+  $editor->save($upload['file']); // 同じパスへ上書き（寸法は変えない）
+
+  return $upload;
+});
 
 // ----------------------------------------------------------
 // サムネイルサイズを削除
