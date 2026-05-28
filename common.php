@@ -33,13 +33,13 @@ add_filter('xmlrpc_enabled', '__return_false', 10);
 // グローバル変数を定義
 // helpers.phpなどで使用する
 
-$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST']);
+$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST'] ?? '');
 
 /*
 判定方法を変えたい場合は、各プロジェクトのfunctions.phpで調整
 ```function.php
 require_once('karappo-common/common.php');
-$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST']);
+$GLOBALS['is_test_environment'] = preg_match('/\.test$/', $_SERVER['HTTP_HOST'] ?? '');
 ```
 */
 
