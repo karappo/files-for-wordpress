@@ -56,6 +56,24 @@ function restrict_japanese_filenames($file) {
 add_filter('wp_handle_upload_prefilter', 'restrict_japanese_filenames');
 
 // ----------------------------------------------------------
+// アップロード画像の拡張子を正規化（小文字化 + jpeg → jpg）
+// 一部の SNS（X 等）の OGP クローラは .jpeg や大文字拡張子だとカードを生成しないことがあるため、
+// アップロード時にファイル名の拡張子を小文字に統一し、jpeg/jpe は jpg に変換する。
+function normalize_upload_file_extension($file) {
+    $dot = strrpos($file['name'], '.');
+    if ($dot === false) return $file;
+
+    $base = substr($file['name'], 0, $dot);
+    $ext  = strtolower(substr($file['name'], $dot + 1));
+
+    if ($ext === 'jpeg' || $ext === 'jpe') $ext = 'jpg';
+
+    $file['name'] = $base . '.' . $ext;
+    return $file;
+}
+add_filter('wp_handle_upload_prefilter', 'normalize_upload_file_extension');
+
+// ----------------------------------------------------------
 // 「ブログのトップに固定」を非表示
 // これをしておかないと、不用意にチェックされて、posts_per_page が機能しなくなるため
 
