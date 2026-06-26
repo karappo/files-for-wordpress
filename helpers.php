@@ -466,3 +466,26 @@ function enqueue_style_with_version($handle, $relative_path, $deps = []) {
 function enqueue_script_with_version($handle, $relative_path, $deps = [], $in_footer = true) {
   wp_enqueue_script($handle, get_template_directory_uri() . '/' . ltrim($relative_path, '/'), $deps, asset_version($relative_path), $in_footer);
 }
+
+// ==========================================================
+//
+// Link
+
+/**
+ * リンクの href 属性を返す/出力する。home_url 以外（外部リンク）には
+ * target="_blank" rel="noopener noreferrer" を自動付与する。
+ * 旧 files-for-sage 由来の汎用 helper。脱Sage移行の互換性のため移植。
+ *
+ * @param string $href   リンク先URL
+ * @param bool   $return true で文字列を返す（デフォルトは echo）
+ */
+function href_target_rel($href, $return = false) {
+  $res = "href=\"$href\"";
+  if ( !preg_match( '{^' . home_url() . '}', $href ) ) {
+    $res .= " target=\"_blank\" rel=\"noopener noreferrer\"";
+  }
+  if ($return) {
+    return $res;
+  }
+  echo $res;
+}
