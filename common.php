@@ -15,7 +15,31 @@ require_once('karappo-common/helpers.php');
 // ファイル編集禁止
 
 define('DISALLOW_FILE_EDIT', true);
-define('DISALLOW_FILE_MODS', true); // 自動更新なども無効化
+define('DISALLOW_FILE_MODS', true); // 管理画面からのプラグイン/テーマ/コアの追加・更新・削除を禁止
+
+// ----------------------------------------------------------
+// 自動更新はコアのみ許可する
+//
+// DISALLOW_FILE_MODS は管理画面からのファイル改変を禁じるためのものだが、副作用で
+// コアのセキュリティ自動更新まで止まってしまう。
+// 2026-07 の wp2shell (CVE-2026-63030) では、WordPress が配信した緊急の強制自動更新を
+// これが原因で受け取れず、脆弱なまま放置されて侵害された事例が出た。
+// 自動更新のコンテキストに限りファイル変更を許可し、セキュリティ修正を受け取れるようにする。
+//
+// コアの自動更新はデフォルトでマイナー（セキュリティ・メンテナンス）リリースのみが対象。
+// サーバ側で更新が入るとリポジトリと乖離するが、github-deploy がデプロイ前にバージョンを
+// 照合して中断するため、rsync --delete による巻き戻りは起きない。
+//
+// 一方プラグイン・テーマ・翻訳は、git 管理していてもデプロイで無言のうちに巻き戻るため
+// （照合の対象外）、自動更新から明示的に外す。
+
+add_filter('file_mod_allowed', function ($allowed, $context) {
+  return in_array($context, ['automatic_updater', 'wp_auto_update_core'], true) ? true : $allowed;
+}, 10, 2);
+
+add_filter('auto_update_plugin', '__return_false');
+add_filter('auto_update_theme', '__return_false');
+add_filter('auto_update_translation', '__return_false');
 
 // ----------------------------------------------------------
 // xmlrpc.phpを無効化
