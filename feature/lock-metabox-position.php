@@ -27,23 +27,43 @@ function lock_metabox_position($args = array()) {
   ), $args);
 
   // 並び替えボタン（見出し右の上下矢印）を非表示に。開閉トグルは残す
+  // あわせて、ドラッグできる見た目（cursor: move）も打ち消す
   $hide_order_buttons = function () {
-    echo '<style>.postbox .handle-order-higher,.postbox .handle-order-lower{display:none;}</style>' . "\n";
+    ?>
+    <style>
+      .postbox .handle-order-higher,
+      .postbox .handle-order-lower {
+        display: none;
+      }
+      /* .hndle は .postbox-header の子なので子孫セレクタで指定する（cursor: move を打ち消す） */
+      .meta-box-sortables .postbox-header,
+      .meta-box-sortables .postbox .hndle {
+        cursor: pointer; /* 開閉はできるので default ではなく pointer */
+      }
+    </style>
+    <?php
   };
   add_action('admin_head-post.php', $hide_order_buttons);
   add_action('admin_head-post-new.php', $hide_order_buttons);
 
   // ドラッグ操作を無効化（開閉トグルは従来どおり使える）
+  //
+  // postboxes.js が .meta-box-sortables に張った jQuery UI sortable の mousedown を
+  // キャプチャ段階で止める。ブロックエディタではメタボックス領域がエディタの描画後に
+  // 生成され sortable の初期化タイミングが読めないため、sortable('disable') のように
+  // 初期化済みであることを前提とする方法は使わない。
+  // 開閉は click イベントなので、mousedown を止めても従来どおり動く。
   $disable_sorting = function () {
     ?>
     <script>
-    jQuery(function ($) {
-      var $sortables = $('.meta-box-sortables');
-      if ($sortables.length && $sortables.data('ui-sortable')) {
-        $sortables.sortable('disable');
+    document.addEventListener('mousedown', function (e) {
+      if (!e.target || !e.target.closest) {
+        return;
       }
-      $('#poststuff .postbox-header, #poststuff .postbox > .hndle').css('cursor', 'default');
-    });
+      if (e.target.closest('.meta-box-sortables .postbox-header, .meta-box-sortables .postbox .hndle')) {
+        e.stopPropagation();
+      }
+    }, true);
     </script>
     <?php
   };
